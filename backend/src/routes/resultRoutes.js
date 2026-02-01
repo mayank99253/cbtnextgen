@@ -1,10 +1,10 @@
 import express from 'express'
 import authMiddleware from '../middleware/auth.middleware.js'
-import adminAuth from '../middleware/adminauth.js' // 1. Admin Auth import karo
+import adminAuth from '../middleware/adminAuth.js'
 import { 
     createResult, 
     listResults, 
-    listAllResultsForAdmin // 2. Naya controller function add karo
+    listAllResultsForAdmin
 } from '../controllers/resultController.js';
 
 const resultRouter = express.Router();
