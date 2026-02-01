@@ -6,7 +6,7 @@ import {
   getAllLanguages,
   getLanguageResults,
 } from "../controllers/adminController.js";
-import adminAuth from "../middleware/adminauth.js";
+import adminAuth from "../middleware/adminAuth.js";
 
 const router = express.Router();
 
