@@ -12,7 +12,7 @@ const resultSchema = new mongoose.Schema(
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: false,
+      required: true, // User ID honi hi chahiye dashboard ke liye
     },
 
     title: {
@@ -25,17 +25,10 @@ const resultSchema = new mongoose.Schema(
       type: String,
       required: true,
       trim: true,
+      lowercase: true, // Consistency ke liye lowercase
       enum: [
-        "html",
-        "css",
-        "js",
-        "react",
-        "node",
-        "mongodb",
-        "java",
-        "python",
-        "cpp",
-        "bootstrap",
+        "html", "css", "js", "react", "node", "mongodb",
+        "java", "python", "cpp", "bootstrap",
       ],
     },
 
@@ -76,6 +69,16 @@ const resultSchema = new mongoose.Schema(
       enum: performanceEnum,
       default: "Needs Work",
     },
+
+    // 🔥 Naya Feature: Har sawal ka jawab yahan store hoga
+    responses: [
+      {
+        questionText: { type: String, required: true },
+        selectedOption: { type: String, required: true },
+        correctOption: { type: String, required: true },
+        isCorrect: { type: Boolean, required: true },
+      }
+    ],
   },
   {
     timestamps: true,
@@ -89,19 +92,17 @@ resultSchema.pre("save", function (next) {
   const total = Number(this.totalQuestions) || 0;
   const correct = Number(this.correct) || 0;
 
-  // calculate score
+  // 1. Calculate Score
   this.score = total ? Math.round((correct / total) * 100) : 0;
 
-  // calculate performance
+  // 2. Calculate Performance based on score
   if (this.score >= 85) this.performance = "Excellent";
   else if (this.score >= 65) this.performance = "Good";
   else if (this.score >= 45) this.performance = "Average";
   else this.performance = "Needs Work";
 
-  // auto-calc wrong answers if not provided
-  if ((this.wrong === undefined || this.wrong === null) && total) {
-    this.wrong = Math.max(0, total - correct);
-  }
+  // 3. Auto-calculate wrong answers
+  this.wrong = Math.max(0, total - correct);
 
   next();
 });

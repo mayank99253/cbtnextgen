@@ -19,17 +19,20 @@ export async function createResult(req, res) {
             totalQuestions,
             correct,
             wrong,
+            responses
         } = req.body;
 
+        // Validation: Ab hum responses ko bhi check karenge
         if (
             !technology ||
             !level ||
             totalQuestions === undefined ||
-            correct === undefined
+            correct === undefined ||
+            !responses || !Array.isArray(responses) // <--- 2. Ensure responses array hai
         ) {
             return res.status(400).json({
                 success: false,
-                message: "Missing fields",
+                message: "Missing fields or invalid responses format",
             });
         }
 
@@ -54,6 +57,7 @@ export async function createResult(req, res) {
             correct: Number(correct),
             wrong: computedWrong,
             user: req.user.id,
+            responses: responses,
         };
 
         const created = await Result.create(payload);
@@ -72,42 +76,6 @@ export async function createResult(req, res) {
     }
 }
 
-// ===============================
-// LIST RESULTS
-// ===============================
-// export async function listResults(req, res) {
-//     try {
-//         if (!req.user || !req.user.id) {
-//             return res.status(401).json({
-//                 success: false,
-//                 message: "Not authorized",
-//             });
-//         }
-
-//         const { technology } = req.query;
-
-//         const query = { user: req.user.id };
-
-//         if (technology && technology.toLowerCase() !== "all") {
-//             query.technology = technology;
-//         }
-
-//         const items = await Result.find(query)
-//             .sort({ createdAt: -1 })
-//             .lean();
-
-//         return res.json({
-//             success: true,
-//             results: items,
-//         });
-//     } catch (err) {
-//         console.error("ListResult Error:", err);
-//         return res.status(500).json({
-//             success: false,
-//             message: "Server Error",
-//         });
-//     }
-// }
 export async function listResults(req, res) {
     try {
         if (!req.user || !req.user.id) {
