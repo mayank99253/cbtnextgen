@@ -5,7 +5,7 @@ import { toast } from 'react-toastify'
 import { Award, BookOpen, CheckCircle, ChevronDown, ChevronRight, Globe, Menu, Sparkles, Star, Target, Terminal, X, Zap, ChevronLeft } from 'lucide-react'
 import axios from 'axios'
 
-const API_BASE = "http://localhost:3000"
+const API_BASE = "https://cbtnextgen-2.onrender.com"
 
 const Sidebar = () => {
   const [selectedTech, setSelectedTech] = useState(null);
@@ -22,44 +22,58 @@ const Sidebar = () => {
     if (submittedRef.current) return;
     if (!selectedTech || !selectedLevel) return;
 
-    const scoreData = calculateScore(); // Score calculate karna zaroori hai
+    const questions = getQuestions();
+    const scoreData = calculateScore();
+
+    // 🔥 LOGIC: Responses array build karna backend ke liye
+    const detailedResponses = questions.map((q, index) => {
+        const selectedIdx = userAnswers[index]; // Jo user ne select kiya (0, 1, 2, 3)
+        const isAnswered = selectedIdx !== undefined;
+        
+        return {
+            questionText: q.question,
+            selectedOption: isAnswered ? q.options[selectedIdx] : "Not Answered",
+            correctOption: q.options[q.correctAnswer],
+            isCorrect: selectedIdx === q.correctAnswer
+        };
+    });
 
     const payload = {
-      title: `${selectedTech.toUpperCase()} - ${selectedLevel.charAt(0).toUpperCase() + selectedLevel.slice(1)} quiz`,
-      technology: selectedTech,
-      level: selectedLevel,
-      totalQuestions: scoreData.total,
-      correct: scoreData.correct,
-      wrong: scoreData.total - scoreData.correct,
+        title: `${selectedTech.toUpperCase()} - ${selectedLevel.charAt(0).toUpperCase() + selectedLevel.slice(1)} quiz`,
+        technology: selectedTech,
+        level: selectedLevel,
+        totalQuestions: questions.length,
+        correct: scoreData.correct,
+        wrong: questions.length - scoreData.correct,
+        responses: detailedResponses, // 🔥 Yeh raha hamara naya detailed data
     };
 
     try {
-      submittedRef.current = true;
-      toast.info('Saving Your Result...');
+        submittedRef.current = true;
+        toast.info('Encrypting & Saving Your Result...');
 
-      // Auth Token check
-      const token = localStorage.getItem('token') || localStorage.getItem('authToken');
+        const token = localStorage.getItem('token') || localStorage.getItem('authToken');
 
-      const res = await axios.post(`${API_BASE}/api/results`, payload, {
-        headers: {
-          'Content-Type': "application/json",
-          'Authorization': `Bearer ${token}`
-        },
-        timeout: 10000,
-      });
+        const res = await axios.post(`${API_BASE}/api/results`, payload, {
+            headers: {
+                'Content-Type': "application/json",
+                'Authorization': `Bearer ${token}`
+            },
+            timeout: 10000,
+        });
 
-      if (res.data && res.data.success) {
-        toast.success('Result Saved Successfully!');
-      } else {
-        toast.warn('Result not saved on server.');
-        submittedRef.current = false;
-      }
+        if (res.data && res.data.success) {
+            toast.success('Detailed Result Saved Successfully!');
+        } else {
+            toast.warn('Result not saved on server.');
+            submittedRef.current = false;
+        }
     } catch (err) {
-      submittedRef.current = false;
-      console.error("Database Error:", err);
-      toast.error("Network Error: Could not save result.");
+        submittedRef.current = false;
+        console.error("Database Error:", err);
+        toast.error("Network Error: Could not save detailed result.");
     }
-  };
+};
 
   const calculateScore = () => {
     const questions = getQuestions();

@@ -14,7 +14,7 @@ const AdminLogin = ({ onLoginSuccess = null }) => {
   const [loading, setLoading] = useState(false)
   const [submitError, setSubmitError] = useState('')
 
-  const API_BASE = 'http://localhost:3000'
+  const API_BASE = "https://cbtnextgen-2.onrender.com"
 
   const handleSubmit = async (e) => {
     e.preventDefault()

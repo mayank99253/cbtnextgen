@@ -12,7 +12,7 @@ const Badge = ({ percent }) => {
   return <span className={resultStyles.badgeNeedsWork}>Needs Work</span>;
 };
 
-const AdminDashboard = ({ apiBase = "http://localhost:3000" }) => {
+const AdminDashboard = ({ apiBase = "https://cbtnextgen-2.onrender.com" }) => {
   const adminData = localStorage.getItem("currentAdmin");
   const adminName = adminData ? (adminData.startsWith('{') ? JSON.parse(adminData).admin_name : adminData) : "Admin";
   

@@ -15,7 +15,7 @@ const Signup = ({ onSignupSuccess = null }) => {
     const [submitError, setSubmitError] = useState("");
     const [loading, setLoading] = useState(false);
 
-    const API_BASE = 'http://localhost:3000';
+    const API_BASE = "https://cbtnextgen-2.onrender.com"
 
     const validate = () => {
         const e = {};
