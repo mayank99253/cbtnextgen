@@ -122,6 +122,7 @@ const Sidebar = () => {
     setUserAnswers({});
     setShowResults(false);
     submittedRef.current = false;
+    alert("Your Exam Starts Now, Please Attempt All Qus !! GOOD LUCK !!");
   };
 
   const handleLevelSelect = (levelId) => {
