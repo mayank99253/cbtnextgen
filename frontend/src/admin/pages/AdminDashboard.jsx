@@ -3,7 +3,7 @@ import { resultStyles } from '../../assets/dummyStyles';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import AdminNavbar from '../components/AdminNavbar';
-import { Users, Trophy, Cpu, Target, Hash, Info } from 'lucide-react';
+import { Users, Trophy, Cpu, Target, Info, Eye, X, CheckCircle2, XCircle } from 'lucide-react';
 
 const Badge = ({ percent }) => {
   if (percent >= 85) return <span className={resultStyles.badgeExcellent}>Excellent</span>;
@@ -20,6 +20,9 @@ const AdminDashboard = ({ apiBase = "https://cbtnextgen-2.onrender.com" }) => {
   const [loading, setLoading] = useState(true);
   const [selectedTechnology, setSelectedTechnology] = useState("all");
   const [technologies, setTechnologies] = useState([]);
+  
+  // 🔥 Step 1: Modal State
+  const [selectedReport, setSelectedReport] = useState(null);
 
   const getAuthHeader = useCallback(() => {
     const token = localStorage.getItem("adminToken") || localStorage.getItem("currentAdmin");
@@ -112,6 +115,7 @@ const AdminDashboard = ({ apiBase = "https://cbtnextgen-2.onrender.com" }) => {
                 item={item}
                 rank={index + 1}
                 isFiltered={selectedTechnology !== "all"}
+                onViewDetails={() => setSelectedReport(item)} // 🔥 Trigger Modal
               />
             ))}
             {!loading && sortedAndRankedResults.length === 0 && (
@@ -123,11 +127,55 @@ const AdminDashboard = ({ apiBase = "https://cbtnextgen-2.onrender.com" }) => {
           </div>
         )}
       </div>
+
+      {/* 🔥 Step 2: Detailed Report Modal */}
+      {selectedReport && (
+        <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <div className="bg-[#0f172a] border border-white/10 w-full max-w-3xl max-h-[85vh] rounded-3xl overflow-hidden flex flex-col shadow-2xl">
+            {/* Modal Header */}
+            <div className="p-6 border-b border-white/5 flex justify-between items-center bg-white/5">
+              <div>
+                <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                  <Eye className="text-cyan-400" /> Exam Analysis
+                </h2>
+                <p className="text-gray-400 text-xs mt-1">
+                  Student: <span className="text-cyan-400 font-bold">{selectedReport.user?.fullName}</span> | Module: {selectedReport.technology.toUpperCase()}
+                </p>
+              </div>
+              <button onClick={() => setSelectedReport(null)} className="p-2 hover:bg-white/10 rounded-full transition-colors text-gray-400">
+                <X size={24} />
+              </button>
+            </div>
+
+            {/* Modal Body (Scrollable) */}
+            <div className="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar">
+              {selectedReport.responses && selectedReport.responses.length > 0 ? (
+                selectedReport.responses.map((res, idx) => (
+                  <div key={idx} className={`p-4 rounded-2xl border ${res.isCorrect ? 'bg-green-500/5 border-green-500/20' : 'bg-red-500/5 border-red-500/20'}`}>
+                    <div className="flex gap-3">
+                      {res.isCorrect ? <CheckCircle2 className="text-green-500 shrink-0" size={20} /> : <XCircle className="text-red-500 shrink-0" size={20} />}
+                      <div className="space-y-2">
+                        <p className="text-gray-200 text-sm font-medium">Q{idx+1}: {res.questionText}</p>
+                        <div className="text-xs space-y-1">
+                          <p className="text-gray-500 italic">User Picked: <span className={res.isCorrect ? "text-green-400" : "text-red-400"}>{res.selectedOption}</span></p>
+                          {!res.isCorrect && <p className="text-green-400">Correct Answer: {res.correctOption}</p>}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-10 text-gray-500">No detailed response data available for this record.</div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
-function AdminStripCard({ item, rank, isFiltered }) {
+function AdminStripCard({ item, rank, isFiltered, onViewDetails }) {
   const percent = item.totalQuestions > 0 ? Math.round((item.correct / item.totalQuestions) * 100) : 0;
   
   return (
@@ -156,15 +204,19 @@ function AdminStripCard({ item, rank, isFiltered }) {
           <StatBox label="Total" value={item.totalQuestions} color="text-gray-400" />
         </div>
 
-        {/* Right: Percentage & Badge */}
-        <div className="flex items-center gap-6 min-w-[150px] justify-end">
+        {/* Right: Percentage & Actions */}
+        <div className="flex items-center gap-6 min-w-[200px] justify-end">
           <div className="text-right">
             <div className="text-2xl font-black text-white">{percent}%</div>
             <Badge percent={percent} />
           </div>
-          <div className="hidden sm:block">
-            <Trophy size={24} className={rank === 1 && isFiltered ? "text-yellow-500 animate-pulse" : "text-gray-800"} />
-          </div>
+          <button 
+            onClick={onViewDetails}
+            className="p-3 bg-white/5 hover:bg-cyan-500/20 border border-white/10 rounded-xl text-cyan-400 transition-all active:scale-95 group"
+            title="View Details"
+          >
+            <Eye size={20} className="group-hover:scale-110 transition-transform" />
+          </button>
         </div>
       </div>
     </div>
