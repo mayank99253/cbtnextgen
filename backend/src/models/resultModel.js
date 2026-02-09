@@ -26,10 +26,7 @@ const resultSchema = new mongoose.Schema(
       required: true,
       trim: true,
       lowercase: true, // Consistency ke liye lowercase
-      enum: [
-        "html", "css", "js", "react", "node", "mongodb",
-        "java", "python", "cpp", "bootstrap",
-      ],
+      
     },
 
     level: {
