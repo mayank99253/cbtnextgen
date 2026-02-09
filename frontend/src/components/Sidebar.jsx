@@ -106,7 +106,7 @@ const Sidebar = () => {
   }, []);
 
   const technologies = [
-    { id: "html", name: "HTML5 ", icon: <Globe size={18} />, color: "border-orange-500/30 text-orange-400 bg-orange-500/5" },
+    { id: "dca", name: "DCA ", icon: <Globe size={18} />, color: "border-orange-500/30 text-orange-400 bg-orange-500/5" },
     // { id: "css", name: "CSS3 Styling", icon: <Zap size={18} />, color: "border-blue-500/30 text-blue-400 bg-blue-500/5" },
     // { id: "js", name: "JavaScript ES6", icon: <Terminal size={18} />, color: "border-yellow-500/30 text-yellow-400 bg-yellow-500/5" },
   ];
